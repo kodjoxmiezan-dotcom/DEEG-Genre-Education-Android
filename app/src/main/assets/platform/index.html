@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#087c4b"><title>DEEG — Genre & Éducation</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="topbar"><div class="brand"><span class="flag"></span><span><b>MENAET • DEEG</b><small>Direction de l’Équité et de l’Égalité de Genre</small></span></div><div class="slogan">Une école inclusive <b>pour une Côte d’Ivoire plus équitable</b></div><div class="offline"><i></i>Hors ligne</div></header>
+<div class="shell">
+<aside class="side"><button class="homebtn" onclick="navigate('index.html')">⌂ <span>Accueil</span></button><div class="side-title">LES MODULES</div><div id="moduleNav"></div><button onclick="showProgress()">◔ <span>Ma progression</span></button><button onclick="navigate('ressources.html')">◎ <span>Ressources</span></button></aside>
+<section class="workspace"><div class="searchbar"><button class="back" onclick="historyBack()">‹</button><input id="search" placeholder="Rechercher : inclusion, droits, VBG, STIM, leadership…"><button onclick="doSearch()">⌕</button></div><main id="content"><div class="loading">Chargement de la formation…</div></main></section>
+<aside class="rail"><section><span class="eyebrow">MON PARCOURS</span><h3>Progression globale</h3><div class="progress"><span id="globalBar"></span></div><p id="globalLabel">0 / 55 étapes terminées</p><button class="resume" onclick="resume()">↺ Reprendre mon parcours</button></section><section><span class="eyebrow">FORMATION</span><h3>10 modules • 35 séquences</h3><p>Pré-tests, évaluations formatives, études de cas et évaluations finales.</p></section><section class="quote">« Éduquer aujourd’hui pour une société plus juste demain. »</section></aside>
+</div>
+<footer>MENAET • Direction de l’Équité et de l’Égalité de Genre (DEEG) <span>Orange • Blanc • Vert</span></footer>
+<script src="routes.js"></script><script src="app.js"></script></body></html>

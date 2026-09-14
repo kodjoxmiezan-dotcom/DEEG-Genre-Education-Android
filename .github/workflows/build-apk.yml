@@ -1,0 +1,103 @@
+name: Build DEEG Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Reconstituer les contenus pédagogiques hors ligne
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat \
+            platform_parts/p00.b64 \
+            platform_parts/p00b0.b64 \
+            platform_parts/p00b1.b64 \
+            platform_parts/p00b2.b64 \
+            platform_parts/p00b3.b64 \
+            platform_parts/p00b4.b64 \
+            platform_parts/p01.b64 \
+            platform_parts/p02.b64 \
+            platform_parts/p03.b64 \
+            platform_parts/p04.b64 \
+            platform_parts/p05.b64 \
+            platform_parts/p06.b64 \
+            platform_parts/p07.b64 \
+            platform_parts/p08.b64 \
+            platform_parts/p09.b64 > /tmp/routes.b64
+          base64 --decode /tmp/routes.b64 > /tmp/routes.json.xz
+          xz --decompress --stdout /tmp/routes.json.xz > /tmp/routes.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          src = Path('/tmp/routes.json')
+          routes = json.loads(src.read_text(encoding='utf-8'))
+          required = [
+              'index.html',
+              'modules/module-1/pretest.html',
+              'modules/module-4/sequence5.html',
+              'modules/module-11/evaluation_finale.html'
+          ]
+          assert len(routes) >= 88, f'Nombre de pages insuffisant: {len(routes)}'
+          for key in required:
+              assert key in routes, f'Page manquante: {key}'
+          out = Path('app/src/main/assets/platform/routes.js')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text('window.ROUTES=' + json.dumps(routes, ensure_ascii=False, separators=(',', ':')) + ';', encoding='utf-8')
+          print(f'{len(routes)} pages pédagogiques intégrées dans routes.js')
+          PY
+          test -s app/src/main/assets/platform/routes.js
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 35
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build installable debug APK
+        shell: bash
+        run: gradle --no-daemon clean assembleDebug
+
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -e
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          mkdir -p dist
+          cp "$APK" "dist/DEEG-Genre-Education.apk"
+          ls -lh "dist/DEEG-Genre-Education.apk"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DEEG-Genre-Education-APK
+          path: dist/DEEG-Genre-Education.apk
+          if-no-files-found: error
+          retention-days: 30

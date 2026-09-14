@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.DEEG" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#087C4B</item>
+        <item name="android:navigationBarColor">#087C4B</item>
+        <item name="android:statusBarColor">#087C4B</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
